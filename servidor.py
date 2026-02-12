@@ -1,10 +1,12 @@
 import socket
 import threading
+import zlib  # Biblioteca utilizada para decompactar de mensagenss (UDP)
 from typing import List
 
 from cliente import Cliente
 
-HOST = "127.0.0.1"
+# localhost
+HOST = "0.0.0.0"
 PORTA = 5555
 
 clientes_tcp: List[Cliente] = []
@@ -45,7 +47,7 @@ def conexoes_tcp():
             name = cliente.socket.recv(1024).decode("utf-8")
             cliente.username = name
             print(
-                "[CONNECT] Cliente Id: {cliente.id_usuario}, username: {cliente.username} conectado de {cliente.endereco[0]}"
+                f"[CONNECT] Cliente Id: {cliente.id_usuario}, username: {cliente.username} conectado de {cliente.endereco[0]}"
             )
             clientes_tcp.append(cliente)
             thread_recebe = threading.Thread(target=recebe_mensagem_tcp, args=[cliente])
@@ -65,7 +67,7 @@ def recebe_mensagem_tcp(cliente: Cliente):
                     f"[DISCONNECT] Cliente Id: {cliente.id_usuario}, username: {cliente.username} desconectado"
                 )
             else:
-                mensagem = f"[MESSAGE] {cliente.username}: {mensagem.decode("utf-8")}"
+                mensagem = f"[MESSAGE] {cliente.username}: {mensagem.decode('utf-8')}"
                 print(mensagem)
                 cliente.socket.send(
                     f"[MESSAGE] ACK - ID: {cliente.id_usuario}".encode("utf-8")
@@ -76,7 +78,7 @@ def recebe_mensagem_tcp(cliente: Cliente):
             cliente.socket.send("[TIMEOUT] Removido por inatividade".encode("utf-8"))
             break
         except Exception as ex:
-            print(ex)
+            print(f"[ERRO] {ex}")
             break
 
 
@@ -97,8 +99,10 @@ def conexoes_udp():
             # UDP NÃO TEM ACCEPT - recebe direto de qualquer um
             mensagem, endereco = servidor_udp.recvfrom(1024)
 
+            mensagem_descompactada = zlib.decompress(mensagem).decode("utf-8")
+
             print(
-                f"[MESSAGE] (UDP) Id: {endereco[1]} HOST: {endereco[0]}: {mensagem.decode("utf-8")}"
+                f"[MESSAGE] (UDP) Id: {endereco[1]} HOST: {endereco[0]}: {mensagem_descompactada}"
             )
 
             # Não retorna ACK nem nada

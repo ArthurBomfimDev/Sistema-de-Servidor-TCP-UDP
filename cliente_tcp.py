@@ -1,8 +1,8 @@
-import os
 import socket
 import threading
 
-HOST = "127.0.0.1"
+# localhost
+HOST = "0.0.0.0"
 PORT = 5555
 
 nome = ""
@@ -13,40 +13,68 @@ while True:
     else:
         print("[ERRO] nome digitado invalido!")
 
-cliente = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
-try:
-    # Concta-se ao servidor
-    cliente.connect((HOST, PORT))
-    print("Conectado ao servidor!")
-    cliente.send(nome.encode("utf-8"))
-except Exception as ex:
-    print(f"[ERRO] CONEXÃO COM SERVIDOR FALHOU: {ex}")
-    exit()
+# Cria o socket
+servidor = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+# Flag/Evento que avisa a aplicação se está conectado ou não
+conectado = threading.Event()
 
 
-def recebe_mensagem(servidor):
+# Função utilizada para conectar/reconectar
+def conectar():
+    global servidor
+    try:
+        servidor.close()
+    except:
+        pass
+
+    servidor = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    try:
+        # Concta-se ao servidor
+        servidor.connect((HOST, PORT))
+        servidor.send(nome.encode("utf-8"))
+        print("Conectado ao servidor!")
+    except Exception as ex:
+        print(f"[ERRO] CONEXÃO COM SERVIDOR FALHOU: {ex}")
+        exit()
+
+
+# Função rodada em Thread separada utilizada para receber mensagem
+def recebe_mensagem():
     while True:
         try:
             mensagem = servidor.recv(1024).decode("utf-8")
-            if mensagem != None and mensagem != "":
+            if not mensagem:
+                # Muda o estado, avisa o resto do programa que não está mais conectado com o servidor
+                conectado.set()
+                return
+            else:
                 if str.startswith(mensagem, "[TIMEOUT]"):
                     print(mensagem)
-                    os._exit(-1)
-
-                print(mensagem)
+                    conectado.set()
+                    print("Pressione qualquer tecla para reconectar...")
+                    return
+                else:
+                    print(mensagem)
         except Exception as ex:
             print(f"[ERRO] {ex}")
             break
 
 
-thread_recebe = threading.Thread(target=recebe_mensagem, args=[cliente])
+conectar()
+# Configurando thread de recebimento de mensagem
+thread_recebe = threading.Thread(target=recebe_mensagem)
+# Iniciando a Thread
 thread_recebe.start()
 
+# loop de envio de mensagem
 while True:
-    mensagem = input("")
+    if conectado.is_set():
+        print("Reconectando...")
+        conectar()
+        conectado.clear()  # "Baixa a bandeira" para poder usar de novo
     try:
-        cliente.send(mensagem.encode("utf-8"))
+        mensagem = input("")
+        servidor.send(mensagem.encode("utf-8"))
     except Exception:
-        print("* Erro ao enviar mensagem: {ex}")
+        print("[ERRO] Falha ao enviar mensagem: {ex}")
         break
