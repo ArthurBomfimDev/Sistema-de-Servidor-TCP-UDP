@@ -1,13 +1,13 @@
-# Desafio Técnico - Sistema de Bate-Papo com TCP e UDP
+# Desafio Técnico - Sistema de Servidor com TCP e UDP
 
 ## Objetivo
-Desenvolver um sistema de chat em Python que demonstre as diferenças práticas entre protocolos TCP e UDP, utilizando threading para suportar múltiplas conexões simultâneas.
+Desenvolver um sistema de Servidor em Python que demonstre as diferenças práticas entre protocolos TCP e UDP, utilizando threading para suportar múltiplas conexões simultâneas.
 
 ---
 
 ## Descrição do Desafio
 
-Você deve criar **dois servidores de chat distintos**: um usando TCP e outro usando UDP. Ambos devem permitir que múltiplos clientes se conectem simultaneamente e troquem mensagens.
+Você deve criar **um servidores de chat**: um usando TCP e outro usando UDP. Os servidores devem permitir que múltiplos clientes se conectem e troquem mensagens entre si. A implementação deve destacar as características de cada protocolo, como confiabilidade e ordem de entrega.
 
 ### Requisitos Funcionais
 
@@ -16,12 +16,11 @@ Você deve criar **dois servidores de chat distintos**: um usando TCP e outro us
 - Cada cliente deve ter um identificador único (nickname/id_user)
 - Transmitir mensagens do cliente para o server e vice-versa
 - Gerenciar entrada e saída de clientes do chat
-- Usar threading para lidar com cada cliente
+- Usar threading para lidar com cada cliente 
+- Manter registro dos clientes ativos (endereço IP e porta)
 
 #### Parte 2: Servidor UDP
 - Receber mensagens de múltiplos clientes
-- Manter registro dos clientes ativos (endereço IP e porta)
-- Implementar sistema de "keep-alive" para detectar clientes desconectados
 - Usar threading para escutar e enviar mensagens
 
 #### Parte 3: Clientes
@@ -111,6 +110,7 @@ Para destacar-se, você pode implementar:
 3. **Testes de stress**: Script para conectar múltiplos clientes simultaneamente
 4. **Reconexão automática**: Cliente tenta reconectar em caso de falha
 5. **Mensagens de sistema**: Notificações quando usuários entram/saem
+6. **Docker**: Usar Docker / Docker-Compose
 
 ---
 
@@ -143,7 +143,6 @@ $ python udp_server.py
 [INFO] Aguardando mensagens...
 [REGISTER] Novo cliente 123456789 registrado de 127.0.0.1:54123
 [MESSAGE] 123456789 : "24780116320913362905022621466880060480996862000045fffffbffff00117800007c0902d40400000006009468"
-[TIMEOUT] Cliente 123456789 removido por inatividade
 ```
 
 ---
@@ -157,7 +156,7 @@ $ python udp_server.py
 - README.md com instruções de execução
 - Documento teórico (PDF ou Markdown)
 
-**Apresentação:** 24/02/2026
+**Apresentação:** 12/02/2026
 
 ---
 ## Recursos de Apoio
@@ -176,13 +175,7 @@ $ python udp_server.py
 ## Dicas Importantes
 
 ⚠️ **Atenção**: 
-- Teste ambos os servidores em portas diferentes simultaneamente
 - Use `try-except` para capturar erros de rede
-
-💡 **Sugestão**: 
-- Comece pelo TCP (mais fácil) e depois implemente o UDP
-- Implemente primeiro sem threading, depois adicione concorrência
-- Faça commits frequentes no Git
 
 🐛 **Debug**: 
 - Use `print()` estrategicamente para rastrear o fluxo de mensagens
@@ -198,7 +191,6 @@ Antes de entregar, verifique:
 - [ ] README.md contém instruções claras de execução
 - [ ] Ambos servidores (TCP e UDP) funcionam
 - [ ] Múltiplos clientes podem se conectar
-- [ ] Broadcast de mensagens funciona
 - [ ] Tratamento de erros implementado
 - [ ] Documento teórico completo
 - [ ] Testes realizados e documentados

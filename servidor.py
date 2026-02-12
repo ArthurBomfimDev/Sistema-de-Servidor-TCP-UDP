@@ -4,7 +4,8 @@ from typing import List
 
 from cliente import Cliente
 
-HOST = "127.0.0.1"
+#localhost
+HOST = "0.0.0.0"
 PORTA = 5555
 
 clientes_tcp: List[Cliente] = []
