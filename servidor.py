@@ -1,5 +1,6 @@
 import socket
 import threading
+import time
 import zlib  # Biblioteca utilizada para decompactar de mensagenss (UDP)
 from typing import List
 
@@ -9,6 +10,8 @@ from cliente import Cliente
 HOST = "0.0.0.0"
 PORTA = 5555
 
+# Utiliza lock para evitar erro de duas threads editarem a lista oa mesmo tempo
+clientes_lock = threading.Lock()
 clientes_tcp: List[Cliente] = []
 
 
@@ -20,8 +23,12 @@ def start_server():
     thread_tcp.start()
     thread_udp.start()
 
-    thread_tcp.join()
-    thread_udp.join()
+    # Mantem o processo principal vivo
+    try:
+        while True:
+            time.sleep(1)
+    except KeyboardInterrupt:
+        print("[INFO] Desligando o servidor...")
 
 
 # region TCP
@@ -34,6 +41,7 @@ def conexoes_tcp():
         socket.AF_INET,
         socket.SOCK_STREAM,
     ) as servidor_tcp:  # SOCK_STREAM -> parametro type é um enumInt -> Configura o tipo para TCP
+        # Permite reabrir o servidor na mesma porta imeditamente
         servidor_tcp.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         servidor_tcp.bind((HOST, PORTA))  # Estabelece vinculo com o host e porta
         servidor_tcp.listen()  # Escuta conexões
@@ -42,44 +50,88 @@ def conexoes_tcp():
         print("[INFO] Aguardando conexões dos clientes...")
 
         while True:
-            cliente_socket, endereco = servidor_tcp.accept()  # aceita uma nova conexão
-            cliente = Cliente(endereco[1], cliente_socket, endereco)
-            name = cliente.socket.recv(1024).decode("utf-8")
-            cliente.username = name
-            print(
-                f"[CONNECT] Cliente Id: {cliente.id_usuario}, username: {cliente.username} conectado de {cliente.endereco[0]}"
-            )
-            clientes_tcp.append(cliente)
-            thread_recebe = threading.Thread(target=recebe_mensagem_tcp, args=[cliente])
-            thread_recebe.start()
+            try:
+                cliente_socket, endereco = (
+                    servidor_tcp.accept()
+                )  # aceita uma nova conexão
+                cliente = Cliente(endereco[1], cliente_socket, endereco)
+                name = cliente.socket.recv(1024).decode("utf-8")
+                cliente.username = name
+                print(
+                    f"[CONNECT] Cliente Id: {cliente.id_usuario}, username: {cliente.username} conectado de {cliente.endereco[0]}"
+                )
+
+                # utilizando o look para adicionar os clientes na lista
+                with clientes_lock:
+                    clientes_tcp.append(cliente)
+
+                thread_recebe = threading.Thread(
+                    target=recebe_mensagem_tcp, args=[cliente]
+                )
+                thread_recebe.start()
+            except Exception as ex:
+                print(f"[ERRO] Falha ao aceitar conexões: {ex}")
 
 
 def recebe_mensagem_tcp(cliente: Cliente):
     # estabelece timeout de 30 segundos o cliente tem esse tempo para mandar mensagem se não é desconectado
     cliente.socket.settimeout(30)
-    while True:
-        try:
-            mensagem = cliente.socket.recv(1024)  # Lê até 1024 bytes
-            if not mensagem:
-                cliente.socket.close()
-                clientes_tcp.remove(cliente)
-                print(
-                    f"[DISCONNECT] Cliente Id: {cliente.id_usuario}, username: {cliente.username} desconectado"
-                )
-            else:
-                mensagem = f"[MESSAGE] {cliente.username}: {mensagem.decode('utf-8')}"
-                print(mensagem)
+
+    try:
+        while True:
+            try:
+                mensagem = cliente.socket.recv(1024)  # Lê até 1024 bytes
+                if not mensagem:
+                    # Remove o cliente no bloco finally
+                    break
+
+                # Decodifica e printa a mensagem do cliente
+                print(f"[MESSAGE] {cliente.username}: {mensagem.decode('utf-8')}")
+
+                # Envia o ack de confirmação ao cliente
                 cliente.socket.send(
                     f"[MESSAGE] ACK - ID: {cliente.id_usuario}".encode("utf-8")
                 )
-        except socket.timeout:
-            clientes_tcp.remove(cliente)
-            print(f"[TIMEOUT] Cliente {cliente.id_usuario} removido por inatividade")
-            cliente.socket.send("[TIMEOUT] Removido por inatividade".encode("utf-8"))
-            break
-        except Exception as ex:
-            print(f"[ERRO] {ex}")
-            break
+
+            except socket.timeout:
+
+                print(
+                    f"[TIMEOUT] Cliente {cliente.id_usuario} removido por inatividade"
+                )
+                # Envia a mensagem pro cliente informando o motivo da desconexão TIMEOUT
+                cliente.socket.send(
+                    "[TIMEOUT] Removido por inatividade".encode("utf-8")
+                )
+                break
+
+            except (ConnectionResetError, BrokenPipeError):
+
+                print(f"[INFO] Cliente {cliente.username} desconectou antes do ACK.")
+                break  # Sai do loop e limpa os recursos no finally
+
+            except Exception as ex:
+
+                print(f"[ERRO] {ex}")
+                break
+
+    except Exception as ex:
+        # Se for Errno 9, ignoramos pois o socket já foi fechado propositalmente
+        if getattr(ex, "errno", None) != 9:
+            print(f"[ERRO] {cliente.username}: {ex}")
+    finally:
+        # Limpeza centralizada - Removendo os clientes da lista e fechando o socket
+        with clientes_lock:
+            if cliente in clientes_tcp:
+                clientes_tcp.remove(cliente)
+        try:
+            cliente.socket.close()
+        except:
+            # Provavelmente o socket ja foi encerrado
+            pass
+
+        print(
+            f"[DISCONNECT] Cliente Id: {cliente.id_usuario}, username: {cliente.username} foi desconectado"
+        )
 
 
 # endregion
