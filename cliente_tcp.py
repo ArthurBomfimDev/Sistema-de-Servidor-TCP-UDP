@@ -3,7 +3,7 @@ import threading
 
 # localhost
 HOST = "0.0.0.0"
-PORT = 5555
+PORT = 8000
 
 nome = ""
 while True:
@@ -37,6 +37,11 @@ def conectar():
         print(f"[ERRO] CONEXÃO COM SERVIDOR FALHOU: {ex}")
         exit()
 
+    # Configurando thread de recebimento de mensagem
+    thread_recebe = threading.Thread(target=recebe_mensagem)
+    # Iniciando a Thread
+    thread_recebe.start()
+
 
 # Função rodada em Thread separada utilizada para receber mensagem
 def recebe_mensagem():
@@ -46,6 +51,7 @@ def recebe_mensagem():
             if not mensagem:
                 # Muda o estado, avisa o resto do programa que não está mais conectado com o servidor
                 conectado.set()
+                print("Pressione qualquer tecla para reconectar...")
                 return
             else:
                 if str.startswith(mensagem, "[TIMEOUT]"):
@@ -61,10 +67,6 @@ def recebe_mensagem():
 
 
 conectar()
-# Configurando thread de recebimento de mensagem
-thread_recebe = threading.Thread(target=recebe_mensagem)
-# Iniciando a Thread
-thread_recebe.start()
 
 # loop de envio de mensagem
 while True:
