@@ -1,9 +1,10 @@
 import socket
 import threading
+import os
 
 # localhost
-HOST = "0.0.0.0"
-PORT = 8000
+HOST = os.getenv("HOST", "servidor")
+PORT = int(os.getenv("PORT", "5555"))
 
 nome = ""
 while True:

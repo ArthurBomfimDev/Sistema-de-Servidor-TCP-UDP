@@ -1,0 +1,59 @@
+services:
+  servidor:
+    build: .
+    container_name: servidor-tcp-udp
+    command: python servidor.py
+    ports:
+      # O Docker mapeia apenas TCP por padrão. Explicitar o UDP é crucial aqui!
+      - "5555:5555/tcp"
+      - "5555:5555/udp"
+    networks:
+      - rede-comunicacao
+    restart: unless-stopped
+
+  # Template preparado para rodar clientes normais (iterativos)
+  cliente:
+    build: .
+    stdin_open: true # Mantém a entrada padrão aberta para você digitar o username
+    tty: true # Simula um terminal
+    networks:
+      - rede-comunicacao
+    environment:
+      - ALVO_IP=servidor
+      - ALVO_PORTA=5555
+    profiles:
+      - manual # Só roda quando chamado explicitamente via run
+
+  teste-estresse-tcp:
+    build: .
+    command: python teste_estresse.py
+    stdin_open: true
+    tty: true
+    depends_on:
+      - servidor
+    networks:
+      - rede-comunicacao
+    environment:
+      - ALVO_IP=servidor
+      - ALVO_PORTA=5555
+    profiles:
+      - stress-test
+
+  teste-estresse-udp:
+    build: .
+    command: python teste_estresse_udp.py
+    stdin_open: true
+    tty: true
+    depends_on:
+      - servidor
+    networks:
+      - rede-comunicacao
+    environment:
+      - ALVO_IP=servidor
+      - ALVO_PORTA=5555
+    profiles:
+      - stress-test
+
+networks:
+  rede-comunicacao:
+    driver: bridge

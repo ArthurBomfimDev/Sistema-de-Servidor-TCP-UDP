@@ -1,6 +1,11 @@
+import os
 import socket
 import threading
 import zlib  # Biblioteca que permite a compressão
+
+# localhost
+HOST = os.getenv("SERVER_HOST", "127.0.0.1")
+PORT = 5555
 
 
 # Função para receber mensagem rodada em outra thread
@@ -16,9 +21,6 @@ def recebe_mensagem(cliente: socket):
             break
 
 
-HOST = "0.0.0.0"
-PORT = 5555
-
 cliente = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
 print(f"Cliente UDP conectando em {HOST}:{PORT}")
@@ -28,7 +30,7 @@ thread_recebe.start()
 
 while True:
     mensagem = input()
-    #Compressão
+    # Compressão
     mensagem_compressada = zlib.compress(mensagem.encode("utf-8"))
     # Envio
     cliente.sendto(mensagem_compressada, (HOST, PORT))
