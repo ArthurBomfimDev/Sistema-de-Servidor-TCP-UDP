@@ -12,8 +12,20 @@ services:
     restart: unless-stopped
 
   # Template preparado para rodar clientes normais (iterativos)
-  cliente:
+  cliente-tcp:
     build: .
+    stdin_open: true # Mantém a entrada padrão aberta para você digitar o username
+    tty: true # Simula um terminal
+    command: python cliente_tcp.py
+    networks:
+      - rede-comunicacao
+    environment:
+      - ALVO_IP=servidor
+      - ALVO_PORTA=5555
+
+  cliente-udp:
+    build: .
+    command: python cliente_udp.py
     stdin_open: true # Mantém a entrada padrão aberta para você digitar o username
     tty: true # Simula um terminal
     networks:

@@ -24,10 +24,6 @@ def recebe_mensagem(cliente: socket):
 cliente = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
 print(f"Cliente UDP conectando em {HOST}:{PORT}")
-if HOST == "127.0.0.1":
-    print(
-        "[AVISO] Usando localhost. Para Docker use: docker compose run --rm -e ALVO_IP=servidor cliente python cliente_udp.py"
-    )
 
 thread_recebe = threading.Thread(target=recebe_mensagem, args=[cliente])
 thread_recebe.start()
