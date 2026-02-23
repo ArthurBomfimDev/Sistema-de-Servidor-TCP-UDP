@@ -15,7 +15,7 @@ Servidor principal que gerencia conexões TCP e UDP simultaneamente.
 - Confirmação ACK para mensagens TCP
 
 **Configuração:**
-- Host: `127.0.0.1` (localhost)
+- Host: `0.0.0.0`
 - Porta: `5555`
 
 **Como executar:**
@@ -65,18 +65,18 @@ python cliente_udp.py
 Script bash para gerenciar o sistema via menu interativo (execução local).
 
 **Funcionalidades:**
-- Menu interativo para iniciar componentes
-- Inicia servidor em terminal separado
-- Permite criar múltiplos clientes TCP/UDP simultaneamente
-- Permite executar testes de estresse TCP/UDP
-- Abre cada instância em nova janela do gnome-terminal
+- Menu interativo em loop contínuo
+- Inicia servidor em novo terminal
+- Cria múltiplos clientes TCP/UDP simultaneamente (cada um em novo terminal)
+- Executa testes de estresse em novo terminal
+- Limpa variáveis de ambiente que causam conflitos
 
 **Opções do menu:**
-- `[1]` - Iniciar Servidor Gateway
-- `[2]` - Criar clientes TCP (quantidade personalizável)
-- `[3]` - Criar clientes UDP (quantidade personalizável)
-- `[4]` - Executar teste de estresse TCP
-- `[5]` - Executar teste de estresse UDP
+- `[1]` - Servidor Gateway (novo terminal)
+- `[2]` - Cliente TCP (quantidade personalizável, novos terminais)
+- `[3]` - Cliente UDP (quantidade personalizável, novos terminais)
+- `[4]` - Teste de Estresse TCP (novo terminal)
+- `[5]` - Teste de Estresse UDP (novo terminal)
 - `[0]` - Sair
 
 **Como executar:**
@@ -89,20 +89,21 @@ chmod +x painel.sh
 Script bash para gerenciar o sistema via Docker.
 
 **Funcionalidades:**
-- Menu interativo para gerenciar containers Docker
-- Inicia/para servidor
-- Cria clientes TCP/UDP em containers
-- Executa testes de estresse
-- Visualiza logs do servidor
+- Menu interativo em loop contínuo
+- Gerencia containers Docker
+- Abre logs do servidor em novo terminal
+- Cria múltiplos clientes TCP/UDP em novos terminais
+- Executa testes de estresse em novos terminais
+- Remove containers órfãos ao parar
 
 **Opções do menu:**
-- `[1]` - Iniciar Servidor
-- `[2]` - Ver Logs do Servidor
-- `[3]` - Criar Cliente TCP
-- `[4]` - Criar Cliente UDP
-- `[5]` - Teste de Estresse TCP
-- `[6]` - Teste de Estresse UDP
-- `[7]` - Parar Servidor
+- `[1]` - Iniciar Servidor (background)
+- `[2]` - Ver Logs do Servidor (novo terminal)
+- `[3]` - Criar Cliente(s) TCP (quantidade personalizável, novos terminais)
+- `[4]` - Criar Cliente(s) UDP (quantidade personalizável, novos terminais)
+- `[5]` - Teste de Estresse TCP (novo terminal)
+- `[6]` - Teste de Estresse UDP (novo terminal)
+- `[7]` - Parar Servidor (remove containers)
 - `[0]` - Sair
 
 **Como executar:**
@@ -111,23 +112,49 @@ chmod +x docker-menu.sh
 ./docker-menu.sh
 ```
 
+### `run-cliente-tcp.sh`
+Script auxiliar para criar cliente TCP via Docker.
+
+**Funcionalidades:**
+- Solicita nome do cliente
+- Abre cliente TCP em novo terminal
+- Conecta à rede Docker do servidor
+
+**Como executar:**
+```bash
+./run-cliente-tcp.sh NomeDoCliente
+```
+
+### `run-cliente-udp.sh`
+Script auxiliar para criar cliente UDP via Docker.
+
+**Funcionalidades:**
+- Abre cliente UDP em novo terminal
+- Conecta à rede Docker do servidor
+
+**Como executar:**
+```bash
+./run-cliente-udp.sh
+```
+
 ### `teste_estresse.py`
 Script para teste de carga TCP com múltiplos clientes simultâneos.
 
 **Funcionalidades:**
 - Simula múltiplos clientes TCP conectando simultaneamente
-- Configurável via variável de ambiente (IP e porta) e input (clientes e mensagens)
+- Configurável via variável de ambiente
 - Aguarda ACK do servidor para cada mensagem
 - Exibe estatísticas de desempenho ao final
 
 **Variáveis de ambiente:**
 - `ALVO_IP`: IP do servidor (padrão: `127.0.0.1`)
 - `ALVO_PORTA`: Porta do servidor (padrão: `5555`)
+- `TOTAL_CLIENTES`: Número de clientes (padrão: `5000`)
+- `MENSAGENS_POR_CLIENTE`: Mensagens por cliente (padrão: `5`)
 
 **Como executar:**
 ```bash
 python teste_estresse.py
-# Informe: clientes (100), mensagens (5)
 ```
 
 ### `teste_estresse_udp.py`
@@ -135,94 +162,73 @@ Script para teste de carga UDP com múltiplos clientes simultâneos.
 
 **Funcionalidades:**
 - Simula múltiplos clientes UDP enviando pacotes simultaneamente
-- Configurável via variável de ambiente (IP e porta) e input (clientes e mensagens)
+- Configurável via variável de ambiente
 - Compressão de mensagens com zlib
 - Exibe estatísticas de desempenho ao final
 
 **Variáveis de ambiente:**
 - `ALVO_IP`: IP do servidor (padrão: `127.0.0.1`)
 - `ALVO_PORTA`: Porta do servidor (padrão: `5555`)
+- `TOTAL_CLIENTES`: Número de clientes (padrão: `500`)
+- `MENSAGENS_POR_CLIENTE`: Mensagens por cliente (padrão: `100`)
 
 **Como executar:**
 ```bash
 python teste_estresse_udp.py
-# Informe: clientes (100), mensagens (10)
 ```
 
 ## 🚀 Como Usar
 
-<<<<<<< HEAD
-<<<<<<< Updated upstream
-### Opção 1: Usando o Painel de Controle (Recomendado)
-=======
 ### Opção 1: Usando Docker (Recomendado) 🐳
 
+#### Menu Interativo (Mais Fácil)
+```bash
+./docker-menu.sh
+```
+
+O menu permite:
+- Iniciar/parar servidor
+- Ver logs em tempo real (novo terminal)
+- Criar múltiplos clientes TCP/UDP (novos terminais)
+- Executar testes de estresse (novos terminais)
+
+#### Comandos Manuais
 ```bash
 # Subir servidor
-docker compose up -d servidor
+docker compose up -d
 
-# Ver logs
+# Ver logs (novo terminal via menu ou manual)
 docker compose logs -f servidor
 
-# Executar teste de estresse TCP
-docker compose run --rm teste-estresse-tcp
+# Criar clientes (abrem novos terminais)
+./run-cliente-tcp.sh Arthur
+./run-cliente-tcp.sh Maria
+./run-cliente-udp.sh
 
-# Executar teste de estresse UDP
+# Testes de estresse
+docker compose run --rm teste-estresse-tcp
 docker compose run --rm teste-estresse-udp
 
 # Parar tudo
 docker compose down
-=======
-### Opção 1: Usando Docker (Recomendado) 🐳
-
-```bash
-# Subir servidor e clientes
-docker-compose up -d
-
-# Ver logs
-docker-compose logs -f
-
-# Executar teste de estresse TCP
-docker-compose --profile stress-test run --rm teste-estresse-tcp
-
-# Executar teste de estresse UDP
-docker-compose --profile stress-test run --rm teste-estresse-udp
-
-# Parar tudo
-docker-compose down
->>>>>>> e85d40b7d36f10597b7e2e2313fd37237d3023a7
 ```
 
 **📖 Documentação completa:** [README-DOCKER.md](README-DOCKER.md)
 
-<<<<<<< HEAD
 ### Opção 2: Usando o Painel de Controle (Execução Local)
->>>>>>> Stashed changes
-=======
-### Opção 2: Usando o Painel de Controle
->>>>>>> e85d40b7d36f10597b7e2e2313fd37237d3023a7
+
 ```bash
 chmod +x painel.sh
 ./painel.sh
 ```
-Selecione as opções do menu para iniciar servidor, clientes e testes de estresse.
 
-<<<<<<< HEAD
-<<<<<<< Updated upstream
-### Opção 2: Execução Manual
-=======
-### Opção 3: Usando o Menu Docker
-```bash
-chmod +x docker-menu.sh
-./docker-menu.sh
-```
-Gerencia containers Docker via menu interativo.
+O menu permite:
+- Iniciar servidor (novo terminal)
+- Criar múltiplos clientes TCP (novos terminais)
+- Criar múltiplos clientes UDP (novos terminais)
+- Executar testes de estresse (novos terminais)
 
-### Opção 4: Execução Manual
->>>>>>> Stashed changes
-=======
 ### Opção 3: Execução Manual
->>>>>>> e85d40b7d36f10597b7e2e2313fd37237d3023a7
 
 1. **Inicie o servidor:**
    ```bash
@@ -243,13 +249,11 @@ Gerencia containers Docker via menu interativo.
 
 4. **Execute testes de estresse** (opcional):
    ```bash
-   # Teste TCP (usa 127.0.0.1:5555 por padrão)
+   # Teste TCP (5000 clientes, 5 mensagens)
    python teste_estresse.py
-   # Informe: clientes (100), mensagens (5)
    
-   # Teste UDP (usa 127.0.0.1:5555 por padrão)
+   # Teste UDP (500 clientes, 100 mensagens)
    python teste_estresse_udp.py
-   # Informe: clientes (100), mensagens (10)
    ```
 
 ## 🔄 Diferenças TCP vs UDP
@@ -264,21 +268,33 @@ Gerencia containers Docker via menu interativo.
 
 ## 📝 Exemplo de Uso
 
-**Terminal 1 - Servidor:**
-```
-[INFO] Servidor TCP iniciando 127.0.0.1:5555
-[INFO] Aguardando conexões dos clientes...
-[INFO] Servidor UDP iniciando 127.0.0.1:5555
-[CONNECT] Cliente Id: 54321, username: Arthur conectado de 127.0.0.1
-[MESSAGE] Arthur: Olá servidor!
+### Usando Docker Menu
+
+**1. Execute o menu:**
+```bash
+./docker-menu.sh
 ```
 
-**Terminal 2 - Cliente TCP:**
+**2. Escolha [1] - Iniciar Servidor**
+
+**3. Escolha [2] - Ver Logs**
+- Abre novo terminal com logs em tempo real
+
+**4. Escolha [3] - Criar Cliente TCP**
+- Digite: 2 (para criar 2 clientes)
+- Abre 2 novos terminais com clientes conectados
+
+**5. Digite mensagens em cada terminal de cliente**
+
+**Resultado no Terminal de Logs:**
 ```
-Digite seu nome de usuario: Arthur
-Conectado ao servidor!
-Olá servidor!
-[MESSAGE] ACK - ID: 54321
+[INFO] Servidor TCP iniciando 0.0.0.0:5555
+[INFO] Aguardando conexões dos clientes...
+[INFO] Servidor UDP iniciando 0.0.0.0:5555
+[CONNECT] Cliente Id: 40804, username: Cliente_1 conectado de 172.19.0.2
+[MESSAGE] Cliente_1: Olá servidor!
+[CONNECT] Cliente Id: 40805, username: Cliente_2 conectado de 172.19.0.3
+[MESSAGE] Cliente_2: Tudo bem?
 ```
 
 ## ⚙️ Requisitos
@@ -286,24 +302,34 @@ Olá servidor!
 ### Docker (Recomendado)
 - Docker Engine 20.10+
 - Docker Compose 2.0+
+- gnome-terminal (para abrir múltiplos terminais automaticamente)
 
 ### Execução Local
 - Python 3.x
-- Bibliotecas padrão: `socket`, `threading`, `typing`, `zlib`
-- Bash (para executar painel.sh)
-- gnome-terminal (para abrir múltiplas janelas via painel)
+- Bibliotecas padrão: `socket`, `threading`, `typing`, `zlib`, `os`
+- Bash (para executar scripts .sh)
+- gnome-terminal (para abrir múltiplas janelas)
 
 ## 🔒 Observações
 
-- O servidor aceita conexões apenas em localhost (127.0.0.1) quando executado localmente
-- No Docker, o servidor aceita conexões de qualquer origem na rede bridge
+- O servidor aceita conexões em `0.0.0.0:5555` (todas as interfaces)
+- No Docker, clientes conectam via rede bridge interna
 - Clientes TCP inativos por mais de 30 segundos são desconectados automaticamente
 - Mensagens UDP não recebem confirmação do servidor
 - Múltiplos clientes podem se conectar simultaneamente via TCP
+- Todos os scripts abrem automaticamente novos terminais para cada componente
+- Os menus funcionam em loop contínuo até escolher sair
 
 ## 📦 Arquivos Docker
 
-- `Dockerfile` - Imagem base da aplicação
+- `Dockerfile` - Imagem base Python 3.11 slim
 - `docker-compose.yml` - Orquestração de serviços
 - `.dockerignore` - Arquivos excluídos do build
-- `README-DOCKER.md` - Documentação completa do Docker
+- `docker-menu.sh` - Menu interativo Docker (loop contínuo, novos terminais)
+- `run-cliente-tcp.sh` - Script auxiliar cliente TCP (novo terminal)
+- `run-cliente-udp.sh` - Script auxiliar cliente UDP (novo terminal)
+
+## 📚 Documentação Adicional
+
+- **[README-DOCKER.md](README-DOCKER.md)** - Guia completo Docker com troubleshooting
+- **[GUIA-RAPIDO.md](GUIA-RAPIDO.md)** - Comandos rápidos e exemplos práticos

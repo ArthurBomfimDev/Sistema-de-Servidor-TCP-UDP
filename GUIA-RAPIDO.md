@@ -7,6 +7,8 @@
 ./docker-menu.sh
 ```
 
+Cada opção abre automaticamente em um novo terminal!
+
 ### Opção 2: Comandos Manuais
 
 #### 1. Iniciar Servidor
@@ -14,41 +16,29 @@
 docker compose up -d
 ```
 
-#### 2. Ver Logs do Servidor (outro terminal)
+#### 2. Ver Logs (abre em novo terminal)
 ```bash
-docker compose logs -f servidor
+./docker-menu.sh
+# Escolha opção [2]
 ```
 
-#### 3. Criar Clientes TCP (terminais separados)
+#### 3. Criar Clientes TCP (cada um abre em novo terminal)
 ```bash
-# Terminal 1
 ./run-cliente-tcp.sh Arthur
-
-# Terminal 2
 ./run-cliente-tcp.sh Maria
-
-# Terminal 3
 ./run-cliente-tcp.sh João
 ```
 
-#### 4. Criar Cliente UDP
+#### 4. Criar Cliente UDP (abre em novo terminal)
 ```bash
 ./run-cliente-udp.sh
 ```
 
-#### 5. Testes de Estresse
+#### 5. Testes de Estresse (abrem em novo terminal)
 ```bash
-# TCP (5000 clientes, 5 mensagens)
-docker compose --profile stress-test run --rm teste-estresse-tcp
-
-# UDP (500 clientes, 100 mensagens)
-docker compose --profile stress-test run --rm teste-estresse-udp
-
-# Personalizado
-docker compose --profile stress-test run --rm \
-  -e TOTAL_CLIENTES=1000 \
-  -e MENSAGENS_POR_CLIENTE=10 \
-  teste-estresse-tcp
+# Via menu
+./docker-menu.sh
+# Escolha opção [5] para TCP ou [6] para UDP
 ```
 
 #### 6. Parar Servidor
@@ -58,31 +48,53 @@ docker compose down
 
 ---
 
-## 💡 Exemplo Prático
+## 💡 Fluxo de Trabalho
 
-**Terminal 1 - Servidor:**
+**1. Execute o menu:**
 ```bash
-docker compose up servidor
+./docker-menu.sh
 ```
 
-**Terminal 2 - Cliente Arthur:**
+**2. Escolha [1] - Iniciar Servidor**
+
+**3. Escolha [2] - Ver Logs**
+- Abre terminal com logs em tempo real
+
+**4. Execute o menu novamente e escolha [3] - Cliente TCP**
+- Digite: Arthur
+- Abre novo terminal com cliente conectado
+
+**5. Execute o menu novamente e escolha [3] - Cliente TCP**
+- Digite: Maria
+- Abre outro terminal com cliente conectado
+
+**6. Digite mensagens em cada terminal de cliente**
+- Veja as mensagens aparecerem no terminal de logs!
+
+---
+
+## 🧪 Testes de Estresse
+
+### Via Menu (abre em novo terminal)
 ```bash
-./run-cliente-tcp.sh Arthur
-# Digite: Olá servidor!
+./docker-menu.sh
+# [5] Teste TCP
+# [6] Teste UDP
 ```
 
-**Terminal 3 - Cliente Maria:**
+### Manual
 ```bash
-./run-cliente-tcp.sh Maria
-# Digite: Tudo bem?
-```
+# TCP (5000 clientes, 5 mensagens)
+docker compose run --rm teste-estresse-tcp
 
-**Resultado no Terminal 1:**
-```
-[CONNECT] Cliente Id: 12345, username: Arthur conectado
-[MESSAGE] Arthur: Olá servidor!
-[CONNECT] Cliente Id: 12346, username: Maria conectado
-[MESSAGE] Maria: Tudo bem?
+# UDP (500 clientes, 100 mensagens)
+docker compose run --rm teste-estresse-udp
+
+# Personalizado
+docker compose run --rm \
+  -e TOTAL_CLIENTES=1000 \
+  -e MENSAGENS_POR_CLIENTE=10 \
+  teste-estresse-tcp
 ```
 
 ---
@@ -106,10 +118,10 @@ docker system prune -f
 
 ---
 
-## ⚡ Dicas
+## ⚡ Vantagens
 
-- Servidor separado = logs limpos
-- Cada cliente em terminal próprio = controle total
-- Use nomes descritivos nos clientes TCP
-- Ctrl+C para sair de um cliente
-- Use `docker compose` (sem hífen)
+- ✅ Cada componente em terminal separado
+- ✅ Logs isolados e limpos
+- ✅ Controle visual total
+- ✅ Fácil de gerenciar múltiplos clientes
+- ✅ Não precisa alternar entre terminais manualmente
