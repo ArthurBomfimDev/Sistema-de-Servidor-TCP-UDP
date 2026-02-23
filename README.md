@@ -151,6 +151,7 @@ python teste_estresse_udp.py
 
 ## 🚀 Como Usar
 
+<<<<<<< HEAD
 <<<<<<< Updated upstream
 ### Opção 1: Usando o Painel de Controle (Recomendado)
 =======
@@ -171,18 +172,42 @@ docker compose run --rm teste-estresse-udp
 
 # Parar tudo
 docker compose down
+=======
+### Opção 1: Usando Docker (Recomendado) 🐳
+
+```bash
+# Subir servidor e clientes
+docker-compose up -d
+
+# Ver logs
+docker-compose logs -f
+
+# Executar teste de estresse TCP
+docker-compose --profile stress-test run --rm teste-estresse-tcp
+
+# Executar teste de estresse UDP
+docker-compose --profile stress-test run --rm teste-estresse-udp
+
+# Parar tudo
+docker-compose down
+>>>>>>> e85d40b7d36f10597b7e2e2313fd37237d3023a7
 ```
 
 **📖 Documentação completa:** [README-DOCKER.md](README-DOCKER.md)
 
+<<<<<<< HEAD
 ### Opção 2: Usando o Painel de Controle (Execução Local)
 >>>>>>> Stashed changes
+=======
+### Opção 2: Usando o Painel de Controle
+>>>>>>> e85d40b7d36f10597b7e2e2313fd37237d3023a7
 ```bash
 chmod +x painel.sh
 ./painel.sh
 ```
 Selecione as opções do menu para iniciar servidor, clientes e testes de estresse.
 
+<<<<<<< HEAD
 <<<<<<< Updated upstream
 ### Opção 2: Execução Manual
 =======
@@ -195,6 +220,9 @@ Gerencia containers Docker via menu interativo.
 
 ### Opção 4: Execução Manual
 >>>>>>> Stashed changes
+=======
+### Opção 3: Execução Manual
+>>>>>>> e85d40b7d36f10597b7e2e2313fd37237d3023a7
 
 1. **Inicie o servidor:**
    ```bash
@@ -255,14 +283,27 @@ Olá servidor!
 
 ## ⚙️ Requisitos
 
+### Docker (Recomendado)
+- Docker Engine 20.10+
+- Docker Compose 2.0+
+
+### Execução Local
 - Python 3.x
-- Bibliotecas padrão: `socket`, `threading`, `typing`
+- Bibliotecas padrão: `socket`, `threading`, `typing`, `zlib`
 - Bash (para executar painel.sh)
 - gnome-terminal (para abrir múltiplas janelas via painel)
 
 ## 🔒 Observações
 
-- O servidor aceita conexões apenas em localhost (127.0.0.1)
+- O servidor aceita conexões apenas em localhost (127.0.0.1) quando executado localmente
+- No Docker, o servidor aceita conexões de qualquer origem na rede bridge
 - Clientes TCP inativos por mais de 30 segundos são desconectados automaticamente
 - Mensagens UDP não recebem confirmação do servidor
 - Múltiplos clientes podem se conectar simultaneamente via TCP
+
+## 📦 Arquivos Docker
+
+- `Dockerfile` - Imagem base da aplicação
+- `docker-compose.yml` - Orquestração de serviços
+- `.dockerignore` - Arquivos excluídos do build
+- `README-DOCKER.md` - Documentação completa do Docker

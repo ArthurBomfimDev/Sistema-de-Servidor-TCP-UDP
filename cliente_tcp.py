@@ -1,9 +1,10 @@
+import os
 import socket
 import threading
 
-# localhost
-HOST = "0.0.0.0"
-PORT = 8000
+# Obtém o IP e Porta via variável de ambiente (Docker) ou usa localhost por padrão (Local)
+HOST = os.getenv("ALVO_IP", "127.0.0.1")
+PORT = int(os.getenv("ALVO_PORTA", "5555"))
 
 nome = ""
 while True:

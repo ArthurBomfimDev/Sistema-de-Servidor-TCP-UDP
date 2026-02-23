@@ -5,5 +5,3 @@ WORKDIR /servidor
 COPY . .
 
 EXPOSE 5555
-
-CMD ["python3", "servidor.py"]
