@@ -27,14 +27,14 @@ while true; do
             ;;
         3)
             read -p "Digite quantos clientes TCP deseja iniciar: " quantidade
-            for i in {$quantidade}; do
+            for ((i=1; i<=quantidade; i++)); do
                 env -u LD_LIBRARY_PATH gnome-terminal -- bash -c "docker compose run --rm cliente-tcp; exec bash"
             done
             echo "✓ $quantidade cliente(s) TCP foram iniciados em novo terminal"
             ;;
         4)
             read -p "Digite quantos clientes UDP deseja iniciar: " quantidade
-            for i in {$quantidade}; do
+            for ((i=1; i<=quantidade; i++)); do
                 env -u LD_LIBRARY_PATH gnome-terminal -- bash -c "docker compose run --rm cliente-udp; exec bash"
             done
             echo "✓ $quantidade cliente(s) UDP foram iniciados em novo terminal"
