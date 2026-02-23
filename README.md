@@ -62,18 +62,21 @@ python cliente_udp.py
 ```
 
 ### `painel.sh`
-Script bash para gerenciar o sistema via menu interativo.
+Script bash para gerenciar o sistema via menu interativo (execução local).
 
 **Funcionalidades:**
 - Menu interativo para iniciar componentes
 - Inicia servidor em terminal separado
 - Permite criar múltiplos clientes TCP/UDP simultaneamente
+- Permite executar testes de estresse TCP/UDP
 - Abre cada instância em nova janela do gnome-terminal
 
 **Opções do menu:**
 - `[1]` - Iniciar Servidor Gateway
 - `[2]` - Criar clientes TCP (quantidade personalizável)
 - `[3]` - Criar clientes UDP (quantidade personalizável)
+- `[4]` - Executar teste de estresse TCP
+- `[5]` - Executar teste de estresse UDP
 - `[0]` - Sair
 
 **Como executar:**
@@ -82,16 +85,116 @@ chmod +x painel.sh
 ./painel.sh
 ```
 
+### `docker-menu.sh`
+Script bash para gerenciar o sistema via Docker.
+
+**Funcionalidades:**
+- Menu interativo para gerenciar containers Docker
+- Inicia/para servidor
+- Cria clientes TCP/UDP em containers
+- Executa testes de estresse
+- Visualiza logs do servidor
+
+**Opções do menu:**
+- `[1]` - Iniciar Servidor
+- `[2]` - Ver Logs do Servidor
+- `[3]` - Criar Cliente TCP
+- `[4]` - Criar Cliente UDP
+- `[5]` - Teste de Estresse TCP
+- `[6]` - Teste de Estresse UDP
+- `[7]` - Parar Servidor
+- `[0]` - Sair
+
+**Como executar:**
+```bash
+chmod +x docker-menu.sh
+./docker-menu.sh
+```
+
+### `teste_estresse.py`
+Script para teste de carga TCP com múltiplos clientes simultâneos.
+
+**Funcionalidades:**
+- Simula múltiplos clientes TCP conectando simultaneamente
+- Configurável via variável de ambiente (IP e porta) e input (clientes e mensagens)
+- Aguarda ACK do servidor para cada mensagem
+- Exibe estatísticas de desempenho ao final
+
+**Variáveis de ambiente:**
+- `ALVO_IP`: IP do servidor (padrão: `127.0.0.1`)
+- `ALVO_PORTA`: Porta do servidor (padrão: `5555`)
+
+**Como executar:**
+```bash
+python teste_estresse.py
+# Informe: clientes (100), mensagens (5)
+```
+
+### `teste_estresse_udp.py`
+Script para teste de carga UDP com múltiplos clientes simultâneos.
+
+**Funcionalidades:**
+- Simula múltiplos clientes UDP enviando pacotes simultaneamente
+- Configurável via variável de ambiente (IP e porta) e input (clientes e mensagens)
+- Compressão de mensagens com zlib
+- Exibe estatísticas de desempenho ao final
+
+**Variáveis de ambiente:**
+- `ALVO_IP`: IP do servidor (padrão: `127.0.0.1`)
+- `ALVO_PORTA`: Porta do servidor (padrão: `5555`)
+
+**Como executar:**
+```bash
+python teste_estresse_udp.py
+# Informe: clientes (100), mensagens (10)
+```
+
 ## 🚀 Como Usar
 
+<<<<<<< Updated upstream
 ### Opção 1: Usando o Painel de Controle (Recomendado)
+=======
+### Opção 1: Usando Docker (Recomendado) 🐳
+
+```bash
+# Subir servidor
+docker compose up -d servidor
+
+# Ver logs
+docker compose logs -f servidor
+
+# Executar teste de estresse TCP
+docker compose run --rm teste-estresse-tcp
+
+# Executar teste de estresse UDP
+docker compose run --rm teste-estresse-udp
+
+# Parar tudo
+docker compose down
+```
+
+**📖 Documentação completa:** [README-DOCKER.md](README-DOCKER.md)
+
+### Opção 2: Usando o Painel de Controle (Execução Local)
+>>>>>>> Stashed changes
 ```bash
 chmod +x painel.sh
 ./painel.sh
 ```
-Selecione as opções do menu para iniciar servidor e clientes automaticamente.
+Selecione as opções do menu para iniciar servidor, clientes e testes de estresse.
 
+<<<<<<< Updated upstream
 ### Opção 2: Execução Manual
+=======
+### Opção 3: Usando o Menu Docker
+```bash
+chmod +x docker-menu.sh
+./docker-menu.sh
+```
+Gerencia containers Docker via menu interativo.
+
+### Opção 4: Execução Manual
+>>>>>>> Stashed changes
 
 1. **Inicie o servidor:**
    ```bash
@@ -109,6 +212,17 @@ Selecione as opções do menu para iniciar servidor e clientes automaticamente.
    python cliente_udp.py
    ```
    Envie mensagens diretamente sem autenticação.
+
+4. **Execute testes de estresse** (opcional):
+   ```bash
+   # Teste TCP (usa 127.0.0.1:5555 por padrão)
+   python teste_estresse.py
+   # Informe: clientes (100), mensagens (5)
+   
+   # Teste UDP (usa 127.0.0.1:5555 por padrão)
+   python teste_estresse_udp.py
+   # Informe: clientes (100), mensagens (10)
+   ```
 
 ## 🔄 Diferenças TCP vs UDP
 
