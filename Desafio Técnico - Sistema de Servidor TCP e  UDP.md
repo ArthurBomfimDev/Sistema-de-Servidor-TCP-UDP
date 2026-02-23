@@ -118,7 +118,7 @@ Para destacar-se, você pode implementar:
 
 ### Servidor TCP
 ```bash
-$ python tcp_server.py
+$ python tcp_server.pyteste
 [INFO] Servidor TCP iniciado na porta 5000
 [INFO] Aguardando conexões...
 [CONNECT] Cliente 123456789 conectado de 127.0.0.1:52341
