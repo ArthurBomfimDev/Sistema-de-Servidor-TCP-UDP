@@ -21,8 +21,6 @@ services:
     environment:
       - ALVO_IP=servidor
       - ALVO_PORTA=5555
-    profiles:
-      - manual # Só roda quando chamado explicitamente via run
 
   teste-estresse-tcp:
     build: .
@@ -36,8 +34,6 @@ services:
     environment:
       - ALVO_IP=servidor
       - ALVO_PORTA=5555
-    profiles:
-      - stress-test
 
   teste-estresse-udp:
     build: .
@@ -51,8 +47,6 @@ services:
     environment:
       - ALVO_IP=servidor
       - ALVO_PORTA=5555
-    profiles:
-      - stress-test
 
 networks:
   rede-comunicacao:

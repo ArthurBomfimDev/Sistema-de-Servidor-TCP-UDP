@@ -31,26 +31,12 @@ case $opcao in
         ./run-cliente-udp.sh
         ;;
     5)
-        read -p "Clientes (padrão 5000): " clientes
-        read -p "Mensagens (padrão 5): " mensagens
-        clientes=${clientes:-5000}
-        mensagens=${mensagens:-5}
         echo "Executando teste TCP..."
-        docker compose --profile stress-test run --rm \
-          -e TOTAL_CLIENTES=$clientes \
-          -e MENSAGENS_POR_CLIENTE=$mensagens \
-          teste-estresse-tcp
+        docker compose run --rm teste-estresse-tcp
         ;;
     6)
-        read -p "Clientes (padrão 500): " clientes
-        read -p "Mensagens (padrão 100): " mensagens
-        clientes=${clientes:-500}
-        mensagens=${mensagens:-100}
         echo "Executando teste UDP..."
-        docker compose --profile stress-test run --rm \
-          -e TOTAL_CLIENTES=$clientes \
-          -e MENSAGENS_POR_CLIENTE=$mensagens \
-          teste-estresse-udp
+        docker compose run --rm teste-estresse-udp
         ;;
     7)
         docker compose down

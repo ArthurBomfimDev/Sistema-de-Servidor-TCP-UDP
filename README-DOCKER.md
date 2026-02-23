@@ -24,7 +24,7 @@ EXPOSE 5555
 
 ## ⚙️ Orquestração (docker-compose.yml)
 
-O sistema utiliza uma **rede do tipo bridge** (`rede-comunicacao`) isolada da máquina host. O Compose está dividido em serviços lógicos, e utilizamos **Profiles** para separar a execução padrão das rotinas de teste.
+O sistema utiliza uma **rede do tipo bridge** (`rede-comunicacao`) isolada da máquina host. O Compose está dividido em serviços lógicos.
 
 ### 📦 Serviços Disponíveis
 
@@ -33,15 +33,15 @@ O sistema utiliza uma **rede do tipo bridge** (`rede-comunicacao`) isolada da m�
 - Política de reinício automático (`restart: unless-stopped`)
 - Aceita conexões de qualquer origem na rede bridge
 
-#### 2. **`cliente`** - Container Base Interativo *(Profile: manual)*
+#### 2. **`cliente`** - Container Base Interativo
 - Preparado para rodar clientes interativos (`cliente_tcp.py` ou `cliente_udp.py`)
 - Comunicação direta pelo nome do serviço na rede interna
 - Suporte a entrada de terminal (`stdin_open` e `tty`)
 
-#### 3. **`teste-estresse-tcp`** e **`teste-estresse-udp`** *(Profile: stress-test)*
+#### 3. **`teste-estresse-tcp`** e **`teste-estresse-udp`**
 - Containers efêmeros para validar resiliência do sistema
 - Aguardam automaticamente a inicialização do servidor via `depends_on`
-- Configuráveis via variáveis de ambiente
+- Configurados com variáveis de ambiente para conectar ao servidor
 
 ---
 
@@ -88,27 +88,23 @@ docker compose run --rm cliente python cliente_udp.py
 
 ### 3️⃣ Executar Testes de Estresse
 
-O projeto possui testes automatizados que são acionados apenas quando o **profile específico** é chamado. Isso evita execuções acidentais.
-
 #### Teste TCP
 ```bash
-docker compose --profile stress-test run --rm teste-estresse-tcp
+docker compose run --rm teste-estresse-tcp
 ```
+O teste usará automaticamente `servidor:5555` como alvo.
 Você será solicitado a informar:
-- Número de clientes simultâneos (padrão: 100)
-- Mensagens por cliente (padrão: 5)
+- Número de clientes simultâneos (padrão: `100`)
+- Mensagens por cliente (padrão: `5`)
 
 #### Teste UDP
 ```bash
-docker compose --profile stress-test run --rm teste-estresse-udp
+docker compose run --rm teste-estresse-udp
 ```
+O teste usará automaticamente `servidor:5555` como alvo.
 Você será solicitado a informar:
-- Número de clientes simultâneos (padrão: 100)
-- Mensagens por cliente (padrão: 10)
-
-**💡 Nota sobre Logs:**
-- Executar **sem** a flag `-d` mostrará os logs combinados do servidor e dos testes em tempo real no seu terminal
-- Isso acontece porque o `depends_on` garante que o servidor seja iniciado junto com os testes, e o Docker Compose agrega os logs de todos os containers ativos
+- Número de clientes simultâneos (padrão: `100`)
+- Mensagens por cliente (padrão: `10`)
 
 ### 4️⃣ Encerrar o Ambiente
 
@@ -143,15 +139,21 @@ Para facilitar o uso, utilize o menu interativo:
 
 ---
 
-## 🔧 Variáveis de Ambiente
+## ⛔️ Variáveis de Ambiente
 
 ### Servidor
-- `HOST`: IP de bind (padrão: `0.0.0.0`)
-- `PORTA`: Porta (padrão: `5555`)
+Não requer variáveis de ambiente. Configurado para:
+- `HOST`: `0.0.0.0` (aceita conexões de qualquer origem na rede Docker)
+- `PORTA`: `5555`
 
-### Clientes
-- `ALVO_IP`: Endereço do servidor (padrão: `servidor`)
+### Clientes (cliente_tcp.py e cliente_udp.py)
+- `ALVO_IP`: Endereço do servidor (padrão: `servidor` no Docker, `127.0.0.1` local)
 - `ALVO_PORTA`: Porta (padrão: `5555`)
+
+### Testes de Estresse
+- `ALVO_IP`: Endereço do servidor (padrão: `127.0.0.1`, no Docker: `servidor`)
+- `ALVO_PORTA`: Porta (padrão: `5555`)
+- Número de clientes e mensagens são solicitados via input durante a execução
 
 ---
 
@@ -200,17 +202,32 @@ Conectado ao servidor!
 
 ### Terminal 5: Teste de Estresse
 ```bash
-docker compose --profile stress-test run --rm teste-estresse-tcp
-# Input: 100 (clientes)
-# Input: 5 (mensagens)
+docker compose run --rm teste-estresse-tcp
+# Input Clientes: 100
+# Input Mensagens: 5
 ```
 **Saída:**
 ```
---- Iniciando Stress Test com 100 Bots ---
+============================================================
+  TESTE DE ESTRESSE TCP
+============================================================
+Alvo: servidor:5555
+============================================================
+Número de clientes simultâneos (padrão 100): 100
+Mensagens por cliente (padrão 5): 5
+
+Alvo: servidor:5555
+Clientes: 100
+Mensagens por cliente: 5
+Total de mensagens: 500
+============================================================
+
 [FINALIZADO] Bot_0 concluiu as tarefas.
 [FINALIZADO] Bot_1 concluiu as tarefas.
 ...
---- Teste de Stress Concluído com Sucesso ---
+============================================================
+  TESTE CONCLUÍDO COM SUCESSO
+============================================================
 ```
 
 ---
@@ -355,25 +372,22 @@ docker compose up -d servidor
 - ✅ **Escalabilidade** - Fácil criar múltiplos clientes
 - ✅ **Logs limpos** - Separação clara entre servidor e clientes
 - ✅ **Rede simulada** - Ambiente próximo ao real
-- ✅ **Testes automatizados** - Validação de resiliência com profiles
+- ✅ **Testes automatizados** - Validação de resiliência simplificada
 - ✅ **Zero configuração** - Funciona out-of-the-box
 
 ---
 
 ## 🎓 Conceitos Técnicos Aplicados
 
-### Por que `docker compose --profile stress-test up` mostra logs do servidor?
+### Por que o servidor inicia automaticamente ao rodar os testes?
 
-Isso acontece por causa de **dois comportamentos nativos** do Docker Compose trabalhando juntos:
+Isso acontece por causa do **`depends_on`** no Docker Compose:
 
-1. **Ausência da flag `-d` (Detached):** Quando você roda qualquer `docker compose up` sem o `-d` no final, você está dizendo ao Docker: "Suba os containers e prenda o meu terminal neles". Ele vai agregar e exibir na sua tela o log de todos os containers que estiverem rodando nessa execução, separando cada um por cores e nomes (ex: `servidor-tcp-udp | [INFO]...`).
-
-2. **A regra do `depends_on`:** No seu Compose, os testes de estresse têm `depends_on: - servidor`. Quando você chama o profile de estresse, o Docker pensa: "Opa, preciso rodar os testes, mas eles dependem do servidor. Vou garantir que o servidor está rodando primeiro". Como o servidor entra no "pacote" da execução atual, e você não usou o `-d`, os logs dele são puxados para a sua tela junto com os logs dos testes.
-
-**Solução:** Se você quisesse rodar os testes de estresse em background sem travar o seu terminal, usaria:
-```bash
-docker compose --profile stress-test up -d
-```
+- No `docker-compose.yml`, os testes de estresse têm `depends_on: - servidor`
+- Quando você executa `docker compose run teste-estresse-tcp`, o Docker verifica as dependências
+- Como o teste depende do servidor, o Docker garante que o servidor esteja rodando primeiro
+- Se o servidor não estiver ativo, ele será iniciado automaticamente
+- Quando você não usa a flag `-d`, os logs de ambos os containers aparecem no terminal
 
 ---
 
