@@ -4,7 +4,7 @@ import time
 import zlib  # Biblioteca utilizada para decompactar de mensagenss (UDP)
 from typing import List
 
-from cliente import Cliente
+from src.models.cliente import Cliente
 
 # localhost
 HOST = "0.0.0.0"

@@ -4,7 +4,7 @@ Sistema de mensageria que implementa comunicação via protocolos TCP e UDP, per
 
 ## 📁 Arquivos do Projeto
 
-### `servidor.py`
+### `src/servidor/servidor.py`
 Servidor principal que gerencia conexões TCP e UDP simultaneamente.
 
 **Funcionalidades:**
@@ -20,10 +20,10 @@ Servidor principal que gerencia conexões TCP e UDP simultaneamente.
 
 **Como executar:**
 ```bash
-python servidor.py
+python -m src.servidor.servidor
 ```
 
-### `cliente.py`
+### `src/models/cliente.py`
 Classe modelo que representa um cliente conectado.
 
 **Atributos:**
@@ -32,7 +32,7 @@ Classe modelo que representa um cliente conectado.
 - `socket`: Objeto socket da conexão
 - `endereco`: Tupla com informações do endereço
 
-### `cliente_tcp.py`
+### `src/cliente/cliente_tcp.py`
 Cliente TCP com conexão persistente e bidirecional.
 
 **Funcionalidades:**
@@ -44,10 +44,10 @@ Cliente TCP com conexão persistente e bidirecional.
 
 **Como executar:**
 ```bash
-python cliente_tcp.py
+python -m src.cliente.cliente_tcp
 ```
 
-### `cliente_udp.py`
+### `src/cliente/cliente_udp.py`
 Cliente UDP para comunicação sem conexão.
 
 **Funcionalidades:**
@@ -58,10 +58,10 @@ Cliente UDP para comunicação sem conexão.
 
 **Como executar:**
 ```bash
-python cliente_udp.py
+python -m src.cliente.cliente_udp
 ```
 
-### `painel.sh`
+### `scripts/painel.sh`
 Script bash para gerenciar o sistema via menu interativo (execução local).
 
 **Funcionalidades:**
@@ -81,8 +81,8 @@ Script bash para gerenciar o sistema via menu interativo (execução local).
 
 **Como executar:**
 ```bash
-chmod +x painel.sh
-./painel.sh
+chmod +x scripts/painel.sh
+./scripts/painel.sh
 ```
 
 ### `docker-menu.sh`
@@ -137,7 +137,7 @@ Script auxiliar para criar cliente UDP via Docker.
 ./run-cliente-udp.sh
 ```
 
-### `teste_estresse.py`
+### `tests/teste_estresse.py`
 Script para teste de carga TCP com múltiplos clientes simultâneos.
 
 **Funcionalidades:**
@@ -154,10 +154,10 @@ Script para teste de carga TCP com múltiplos clientes simultâneos.
 
 **Como executar:**
 ```bash
-python teste_estresse.py
+python tests/teste_estresse.py
 ```
 
-### `teste_estresse_udp.py`
+### `tests/teste_estresse_udp.py`
 Script para teste de carga UDP com múltiplos clientes simultâneos.
 
 **Funcionalidades:**
@@ -174,7 +174,7 @@ Script para teste de carga UDP com múltiplos clientes simultâneos.
 
 **Como executar:**
 ```bash
-python teste_estresse_udp.py
+python tests/teste_estresse_udp.py
 ```
 
 ## 🚀 Como Usar
@@ -213,13 +213,13 @@ docker compose run --rm teste-estresse-udp
 docker compose down
 ```
 
-**📖 Documentação completa:** [README-DOCKER.md](README-DOCKER.md)
+**📖 Documentação completa:** [docs/README-DOCKER.md](docs/README-DOCKER.md)
 
 ### Opção 2: Usando o Painel de Controle (Execução Local)
 
 ```bash
-chmod +x painel.sh
-./painel.sh
+chmod +x scripts/painel.sh
+./scripts/painel.sh
 ```
 
 O menu permite:
@@ -232,28 +232,28 @@ O menu permite:
 
 1. **Inicie o servidor:**
    ```bash
-   python servidor.py
+   python -m src.servidor.servidor
    ```
 
 2. **Conecte clientes TCP** (em terminais separados):
    ```bash
-   python cliente_tcp.py
+   python -m src.cliente.cliente_tcp
    ```
    Digite seu username e comece a enviar mensagens.
 
 3. **Conecte clientes UDP** (opcional):
    ```bash
-   python cliente_udp.py
+   python -m src.cliente.cliente_udp
    ```
    Envie mensagens diretamente sem autenticação.
 
 4. **Execute testes de estresse** (opcional):
    ```bash
    # Teste TCP (5000 clientes, 5 mensagens)
-   python teste_estresse.py
+   python tests/teste_estresse.py
    
    # Teste UDP (500 clientes, 100 mensagens)
-   python teste_estresse_udp.py
+   python tests/teste_estresse_udp.py
    ```
 
 ## 🔄 Diferenças TCP vs UDP
@@ -331,5 +331,5 @@ O menu permite:
 
 ## 📚 Documentação Adicional
 
-- **[README-DOCKER.md](README-DOCKER.md)** - Guia completo Docker com troubleshooting
-- **[GUIA-RAPIDO.md](GUIA-RAPIDO.md)** - Comandos rápidos e exemplos práticos
+- **[docs/README-DOCKER.md](docs/README-DOCKER.md)** - Guia completo Docker com troubleshooting
+- **[docs/GUIA-RAPIDO.md](docs/GUIA-RAPIDO.md)** - Comandos rápidos e exemplos práticos

@@ -21,27 +21,27 @@ while true; do
     case $escolha in
         1)
             echo "Iniciando Servidor Gateway..."
-            gnome-terminal -- bash -c "python3 servidor.py; exec bash"
+            gnome-terminal -- bash -c "python3 -m src.servidor.servidor; exec bash"
             ;;
         2)
             read -p "Quantos clientes TCP? " qtd
             for ((i=1; i<=qtd; i++)); do
-                gnome-terminal -- bash -c "python3 cliente_tcp.py; exec bash"
+                gnome-terminal -- bash -c "python3 -m src.cliente.cliente_tcp; exec bash"
             done
             ;;
         3)
             read -p "Quantos clientes UDP? " qtd
             for ((i=1; i<=qtd; i++)); do
-                gnome-terminal -- bash -c "python3 cliente_udp.py; exec bash"
+                gnome-terminal -- bash -c "python3 -m src.cliente.cliente_udp; exec bash"
             done
             ;;
         4)
             echo "Iniciando Teste de Estresse TCP..."
-            gnome-terminal -- bash -c "python3 teste_estresse.py; exec bash"
+            gnome-terminal -- bash -c "python3 tests/teste_estresse.py; exec bash"
             ;;
         5)
             echo "Iniciando Teste de Estresse UDP..."
-            gnome-terminal -- bash -c "python3 teste_estresse_udp.py; exec bash"
+            gnome-terminal -- bash -c "python3 tests/teste_estresse_udp.py; exec bash"
             ;;
         0)
             echo "Saindo..."

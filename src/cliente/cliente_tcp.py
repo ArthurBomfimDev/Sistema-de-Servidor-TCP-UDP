@@ -52,13 +52,13 @@ def recebe_mensagem():
             if not mensagem:
                 # Muda o estado, avisa o resto do programa que não está mais conectado com o servidor
                 conectado.set()
-                print("Pressione qualquer tecla para reconectar...")
+                print("Pressione ENTER para reconectar...")
                 return
             else:
                 if str.startswith(mensagem, "[TIMEOUT]"):
                     print(mensagem)
                     conectado.set()
-                    print("Pressione qualquer tecla para reconectar...")
+                    print("Pressione ENTER para reconectar...")
                     return
                 else:
                     print(mensagem)
